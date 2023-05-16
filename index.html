@@ -6,9 +6,51 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
     <title>Document</title>
+    <script src="data.js"></script>
+    <script src="panels.js"></script>
+
+
 </head>
 <body>
-    <h1>hello world</h1>
-    <script src="app.js"></script>
+    <h1>Size Panels</h1>
+    <select id="mySelect">
+        <option value="OFF Grid">Off Grid</option>
+        <option value="On Grid">On Grid</option>
+    </select>
+
+    <label for="totalPower">Total Power:</label>
+    <input type="number" id="totalPower" name="totalPower"><br><br>
+    
+    <label for="totalEnergy">Total Energy:</label>
+    <input type="text" id="totalEnergy" name="totalEnergy"><br><br>
+    
+    <label for="loss">Loss:</label>
+    <input type="number" id="loss" name="loss"><br><br>
+       
+    <label for="safety Factor">safety Factor:</label>
+    <input type="number" id="safetyFactor" name="safetyFactor"><br><br>
+
+    <label for="expectedArea">Expected Area:</label>
+    <input type="number" id="expectedArea" name="expectedArea"><br><br>
+    
+    <label for="peakSonHours">Peak Sun Hours:</label>
+    <input type="number" id="peakSonHours" name="peakSonHours"><br><br>
+    
+    <label for="topResults">Top Results:</label>
+    <input type="number" id="topResults" name="topResults"><br><br>
+    
+    <label for="elevationAngle">Elevation Angle:</label>
+    <input type="number" id="elevationAngle" name="elevationAngle"><br><br>
+    
+    <label for="tiltAngle">Tilt Angle:</label>
+    <input type="number" id="tiltAngle" name="tiltAngle"><br><br>
+    
+    <button onclick="sizeIt()">get Arrangements</button>
+    <!-- <p id="result"></p> -->
+    <div id="container"></div>
+    <script>
+        loadFromLocalStorage()
+    </script>
+    
 </body>
 </html>
