@@ -9,6 +9,7 @@ function sizeIt() {
     var totalPower = Number(document.getElementById('totalPower').value);
     var safetyFactor = Number(document.getElementById('safetyFactor').value);
     evaluateExpression()
+    var expectedArea = Number(document.getElementById('expectedArea').value);
     var totalEnergy = Number(document.getElementById('totalEnergy').value);
     var loss = Number(document.getElementById('loss').value);
     var peakSonHours = Number(document.getElementById('peakSonHours').value);
@@ -21,7 +22,7 @@ function sizeIt() {
     // Call any relevant functions or perform calculations
     saveToLocalStorage()
     // Example: Display the values in the console
-    let data = { type, totalPower, totalEnergy, loss, safetyFactor, peakSonHours, topResults, coordinates }
+    let data = { type,expectedArea, totalPower, totalEnergy, loss, safetyFactor, peakSonHours, topResults, coordinates }
     console.log('data:', data);
     let theInverters = inverters.filter(x => x.type === type)
     console.log(theInverters);
@@ -29,6 +30,10 @@ function sizeIt() {
     let panel = chosePanels(data, panels, inverter[0])
     console.log("inverter:", inverter);
     console.log("panel:", panel);
+    if (panel.length > 0) {
+        console.log('%c Success! ' + totalEnergy, `color: green; font-weight: bold;`);
+    }
+
 
     // var resultParagraph = document.getElementById("result");
     // resultParagraph.textContent = panel[0]?.message;
@@ -41,6 +46,7 @@ function sizeIt() {
 
         var nameElement = document.createElement("h1");
         nameElement.textContent = item.name;
+        let arrangements = getArrangements(item)?.message
 
         var detailsElement = document.createElement("p");
         detailsElement.innerHTML = "Rank: " + item.rank +
@@ -50,7 +56,7 @@ function sizeIt() {
             "<br>Price Score: <span class='green'>" + item.priceScore.toFixed(2) + "</span>" +
             "<br>Number of Panels: <span class='green'>" + item.numOfPanels + "</span>" +
             "<br>Total Price: $<span class='green'>" + item.totalPrice.toFixed(2) + "</span>" +
-            "<br>Message: " + item.message;
+            "<br>Arrangements: " + arrangements;
 
 
 
@@ -61,6 +67,28 @@ function sizeIt() {
     });
 }
 
+
+function test(data) {
+    // let data = theData ? theData : { type, totalPower, totalEnergy, loss, safetyFactor, peakSonHours, topResults, coordinates }
+    // console.log('data:', data);
+    let theInverters = inverters.filter(x => x.type === data.type)
+    // console.log(theInverters);
+    let inverter = choseTheInverter(data, theInverters)
+    let panel = chosePanels(data, panels, inverter[0])
+    // console.log("inverter:", inverter);
+    console.log("panel:", panel);
+    let arrangements = []
+    panel.forEach(item => {
+        let message = getArrangements(item)?.message
+        if (message) {
+            arrangements.push(message)
+        }
+    });
+
+    if (panel.length === arrangements.length) {
+        console.log('%c Success! ' + data?.totalEnergy, `color: green; font-weight: bold;`);
+    }
+}
 
 function evaluateExpression() {
     var totalEnergyInput = document.getElementById('totalEnergy');
@@ -133,22 +161,20 @@ function chosePanels(data, panels, inverter) {
         if (expectedArea) {
             numOfPanels = Math.floor(expectedArea / area)
         } else {
-            numOfPanels = Number((panelsPower / panel.power).toFixed(0))
+            if (inverter?.type === "On Grid") {
+                numOfPanels = Math.ceil(panelsPower / panel.power)
+            } else {
+                numOfPanels = Math.floor(panelsPower / panel.power)
+            }
             numOfPanels = numOfPanels > 0 ? numOfPanels : numOfPanels + 1
         }
-        maxStringVoltage = panel.maxStringVoltage ? Math.min(maxStringVoltage, panel.maxStringVoltage) : maxStringVoltage
-        // let message = getArrangement(maxStringVoltage, maxArrayAmps, 10000, panel.voc, panel.isc, panel.power, numOfPanels)?.message
-        let maxNumSeries = Math.floor(maxStringVoltage / panel.voc)
-        let maxNumOfPanelPerArr = Math.floor(10000 / panel.power)
-        console.log(numOfPanels, maxNumSeries, maxNumOfPanelPerArr);
-        let message = getArrangements(numOfPanels, maxNumSeries, maxNumOfPanelPerArr)?.message
+
 
         let totalPrice = numOfPanels * panel.price
         let totalArea = numOfPanels * area
         shPanels.push({
             ...panel,
             numOfPanels,
-            message,
             area,
             totalArea,
             totalPrice
@@ -191,7 +217,7 @@ function toBigFixed(num) {
     return Math.floor(num) < num ? Math.floor(num) + 1 : Math.floor(num)
 }
 function getArrangement(maxStringVoltage, maxCurrent, maxPower, panelVoltage, panelCurrent, panelPower, numOfPanels) {
-    console.log(maxStringVoltage, maxCurrent, maxPower, panelVoltage, panelCurrent, panelPower, numOfPanels);
+    // console.log(maxStringVoltage, maxCurrent, maxPower, panelVoltage, panelCurrent, panelPower, numOfPanels);
     // let maxPower =  toBigFixed()
     let maxNumSeries = Math.floor(maxStringVoltage / panelVoltage)
     //400/45 = 8 max num of panels per string 
@@ -400,58 +426,212 @@ function adjustScoreToBigger(score) {
 
 
 
-function getArrangements(numOfPanels, panelsPerString, maxPanelsPerArr) {
+// function getArrangements(numOfPanels, panelsPerString, maxPanelsPerArr) {
 
-    const basPanel = numOfPanels
-    let arr = []
-    let sum = 0
-    let counter = 0
-    let arrangement = []
-    while (sum < numOfPanels) {
-        let newArr = []
-        let randomNum = getRandomNumber((panelsPerString / 2), panelsPerString)
-        while (sumArrayNumbers(newArr) < (maxPanelsPerArr - randomNum)) {
-            newArr.push(randomNum)
+//     const basPanel = numOfPanels
+//     let arr = []
+//     let sum = 0
+//     let counter = 0
+//     let arrangement = []
+//     while (sum < numOfPanels) {
+//         let newArr = []
+//         let randomNum = getRandomNumber((panelsPerString / 2), panelsPerString)
+//         while (sumArrayNumbers(newArr) < (maxPanelsPerArr - randomNum)) {
+//             newArr.push(randomNum)
+//         }
+//         arr.push(newArr) 
+//         sum = sum + sumArrayNumbers(newArr)
+//         if (sum > numOfPanels) {
+//             sum = 0
+//             arr = []
+//         } else if (sum === numOfPanels) {
+//             break
+//         }
+//         if (counter === 500) {
+//             numOfPanels++
+//             sum = 0
+//             arr = []
+//         }
+//         if (counter === 1000) {
+//             break
+//         }
+//         if (numOfPanels >= basPanel + 2) {
+//             break
+//         }
+//         counter++
+//     }
+//     arr.forEach(array => {
+//         array[0]
+//         arrangement.push(array.length + " x " + array[0])
+//     });
+//     return { message: arrayToExpression(arrangement) + " = " + sum }
+// };
+
+
+
+// function getArrangements(numOfPanels, panelsPerString, maxParallelStrings, maxPanelsPerArr, numOfArr) {
+function getArrangements(panel, solarCharger = { maxStringVoltage: 400, maxArrCurrent: 100, maxPower: 10000 }) {
+    let numOfPanels = panel.numOfPanels
+    maxStringVoltage = Math.min(solarCharger.maxStringVoltage, panel.maxStringVoltage)
+    let panelsPerString = Math.floor(maxStringVoltage / panel.voc)
+    let maxPanelsPerArr = Math.floor(solarCharger.maxPower / panel.power)
+    let numOfArr = Math.ceil(numOfPanels / maxPanelsPerArr)
+    // if ((numOfPanels + 2) > (numOfArr * maxPanelsPerArr)) {
+    //     numOfArr++
+    // }
+    // console.log(numOfPanels, maxNumSeries, maxNumOfPanelPerArr);
+    // let message = getArrangements(numOfPanels, maxNumSeries, maxNumOfPanelPerArr)?.message
+    // let message = getArrangements(numOfPanels, maxNumSeries, 100, maxNumOfPanelPerArr, numOfArr)?.message
+
+    console.log("numOfPanels", numOfPanels)
+    console.log("panelsPerString", panelsPerString, "maxPanelsPerArr", maxPanelsPerArr);
+    console.log("numOfArr", numOfArr, (numOfPanels + 2), (numOfArr * maxPanelsPerArr), (numOfPanels + 2) > (numOfArr * maxPanelsPerArr));
+    const theMaxPanelsPerArr = maxPanelsPerArr
+    const numOfBasePanels = numOfPanels
+    // numOfArr = (numOfPanels + 10) >= (numOfArr * maxPanelsPerArr) ? numOfArr + 1 : numOfArr
+    // while ((numOfPanels + 2) >= (numOfArr * maxPanelsPerArr)) {
+    //     numOfPanels--
+    // }
+    // console.log(numOfPanels > panelsPerString, (numOfPanels + 2) < (numOfArr * maxPanelsPerArr))
+    if (numOfPanels > panelsPerString) {
+        // if ((numOfPanels + 2) > (numOfArr * maxPanelsPerArr)) {
+        //     numOfArr++
+        // }
+        let count = 4
+        let result
+        let combinations
+        // maxPanelsPerArr = Math.min(theMaxPanelsPerArr, numOfPanels)
+        let minDivisor = Math.floor(panelsPerString / 2)
+        let minStartArr = Math.floor(maxPanelsPerArr / 2)
+
+        while (count >= 0) {
+            // console.log(Math.ceil(panelsPerString / 2), panelsPerString, Math.ceil(maxPanelsPerArr / 2), maxPanelsPerArr);
+            result = findNumbers(minDivisor, panelsPerString, minStartArr, maxPanelsPerArr);
+            // console.log(numOfPanels, result, numOfArr);
+            combinations = findCombination(numOfPanels, result, numOfArr)
+            console.log(combinations, combinations.length === 0);
+            if (combinations.length === 0) {
+                if (numOfPanels < numOfBasePanels + 2) {
+                    numOfPanels++
+                    console.log("plus");
+                } else {
+                    minDivisor = Math.ceil(panelsPerString / 3)
+                    minStartArr = Math.ceil(maxPanelsPerArr / 3)
+                    result = findNumbers(minDivisor, panelsPerString, minStartArr, maxPanelsPerArr);
+                }
+
+                combinations = findCombination(numOfPanels, result, numOfArr)
+                console.log(minDivisor, panelsPerString, minStartArr, maxPanelsPerArr, "result", result);
+            } else if (combinations.error) {
+                console.log("combinations.error", combinations.error);
+                numOfArr = Math.ceil(numOfPanels / Math.max(...result))
+                combinations = findCombination(numOfPanels, result, numOfArr)
+            }
+            // console.log(combinations);
+
+            // combinations = combinations?.filter(x => (x.length <= numOfArr && sumArrayNumbers(x) === numOfPanels));
+            if (getBestArray(combinations)) {
+                break
+            }
+            // console.log(numOfPanels, getBestArray(combinations), combinations);
+
+            count--
         }
-        arr.push(newArr)
-        sum = sum + sumArrayNumbers(newArr)
-        if (sum > numOfPanels) {
-            sum = 0
-            arr = []
-        } else if (sum === numOfPanels) {
-            break
-        }
-        if (counter === 500) {
-            numOfPanels++
-            sum = 0
-            arr = []
-        }
-        if (numOfPanels >= basPanel + 2) {
-            break
-        }
-        counter++
+        console.log("combinations", combinations);
+        let arrangement = getBestArray(combinations)
+
+        return { message: arrToExpression(arrangement, minDivisor, panelsPerString) }
+    } else {
+        return { message: "( 1 X " + numOfPanels + " )" }
     }
-    arr.forEach(array => {
-        array[0]
-        arrangement.push(array.length + " x " + array[0])
-    });
-    return { message: arrayToExpression(arrangement) + " = " + sum }
-};
-function arrayToExpression(arr) {
+
+}
+
+function arrToExpression(array, minDivisor, maxDivisor) {
+    let arr = []
     let expression = ""
+    console.log(array, minDivisor, maxDivisor);
+    array.forEach((number, index) => {
+        for (let i = maxDivisor; i >= minDivisor; i--) {
+            if (number % i === 0) {
+                arr.push((number / i) + " X " + i)
+                break
+            }
+        }
+    });
+    console.log(arr);
+
     while (arr?.length > 0) {
         let x = arr.filter(x => x == arr[0])
         arr = arr.filter(x => x != arr[0])
         if (arr.length > 0) {
             expression = expression + (x.length + " x (" + x[0] + ") + ");
         } else {
-            expression = expression + (x.length + " x (" + x[0] + ")");
+            expression = expression + (x.length + " x (" + x[0] + ") = " + sumArrayNumbers(array));
         }
     }
     return (expression);
 }
-function checkIfNoDecimals(number) {
-    return number % 1 === 0;
+
+function isDivisible(number, minDivisor, maxDivisor) {
+    for (let i = minDivisor; i <= maxDivisor; i++) {
+        if (number % i === 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function findNumbers(minDivisor, maxDivisor, start, end) {
+    const numbers = [];
+    for (let i = start; i <= end; i++) {
+        if (isDivisible(i, minDivisor, maxDivisor)) {
+            numbers.push(i);
+        }
+    }
+    return numbers;
+}
+
+// Usage
+// const result = findNumbers(Math.ceil(8 / 2), 8, 16, 26);
+// console.log(result);
+
+function findCombination(target, numbers, numOfArr, timeout = 5000) {
+    console.log(target, numbers, numOfArr);
+    if (target / Math.max(...numbers) > numOfArr) {
+        return { error: "length of array smaller than required" }
+    }
+    const combinations = [];
+    numbers.sort((a, b) => b - a)
+    max = target > 500 ? 1 : Math.ceil(100 / (target / Math.max(...numbers)))
+    // max = max === 0?1:max
+    console.log(max);
+    function backtrack(remaining, currentCombination, start) {
+        if (Date.now() - startTime > timeout) {
+            if (combinations.length > 0) {
+                return combinations;
+            }
+            throw new Error('Timeout: The function took too long to execute.');
+
+        }
+        if (remaining === 0 && currentCombination.length === numOfArr) {
+            combinations.push([...currentCombination]);
+        } else if (remaining < 0) {
+            return;
+        } else if (combinations.length >= max) {
+            return;
+        } else {
+            for (let i = start; i < numbers.length; i++) {
+                currentCombination.push(numbers[i]);
+                backtrack(remaining - numbers[i], currentCombination, i);
+                currentCombination.pop();
+            }
+        }
+    }
+    const startTime = Date.now();
+    backtrack(target, [], 0);
+
+    return combinations;
 }
 function sumArrayNumbers(array) {
     var sum = array.reduce(function (accumulator, currentValue) {
@@ -460,9 +640,31 @@ function sumArrayNumbers(array) {
 
     return sum;
 }
-function getRandomNumber(min, max) {
-    var randomNumber = Math.ceil(Math.random() * (max - min) + min);
-    return randomNumber;
-}
-console.log(getArrangements(213, 18, 62).message);
 
+// const targetSum = 78;
+// const givenNumbers = [15, 16, 18, 20, 21, 24, 25];
+
+// console.log(...combinations)
+
+function getBestArray(arrays) {
+    let minDifference = Infinity;
+    let bestArray;
+    console.log(arrays);
+    for (const array of arrays) {
+        const max = Math.max(...array);
+        const min = Math.min(...array);
+        const difference = max - min;
+
+        if (difference < minDifference) {
+            minDifference = difference;
+            bestArray = array;
+        }
+    }
+    // console.log('Best Array:', bestArray);
+    return bestArray
+}
+
+// getArrangements(  2402, 18 , 100, 62, 39 )
+
+
+findCombination(2402, [32, 33, 34, 36, 39, 40, 42, 44, 45, 48, 50, 51, 52, 54, 55, 56, 60], 39) 
