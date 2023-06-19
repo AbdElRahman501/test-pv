@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -11,6 +12,7 @@
 
 
 </head>
+
 <body>
     <h1>Size Panels</h1>
     <select id="mySelect">
@@ -20,30 +22,54 @@
 
     <label for="totalPower">Total Power:</label>
     <input type="number" id="totalPower" name="totalPower"><br><br>
-    
+
     <label for="totalEnergy">Total Energy:</label>
     <input type="text" id="totalEnergy" name="totalEnergy"><br><br>
-    
+
     <label for="loss">Loss:</label>
     <input type="number" id="loss" name="loss"><br><br>
-       
+
     <label for="safety Factor">safety Factor:</label>
     <input type="number" id="safetyFactor" name="safetyFactor"><br><br>
 
     <label for="expectedArea">Expected Area:</label>
     <input type="number" id="expectedArea" name="expectedArea"><br><br>
-    
+
     <label for="peakSonHours">Peak Sun Hours:</label>
     <input type="number" id="peakSonHours" name="peakSonHours"><br><br>
-    
+
     <label for="topResults">Top Results:</label>
     <input type="number" id="topResults" name="topResults"><br><br>
-    
+
     <label for="elevationAngle">Elevation Angle:</label>
     <input type="number" id="elevationAngle" name="elevationAngle"><br><br>
-    
+
     <label for="tiltAngle">Tilt Angle:</label>
     <input type="number" id="tiltAngle" name="tiltAngle"><br><br>
+
+    <label for="autonomyDay">Autonomy Day</label>
+    <input type="number" id="autonomyDay" name="autonomyDay"><br><br>
+
+    <label for="dod">DOD</label>
+    <input type="number" id="dod" name="dod"><br><br>
+ 
+    <div class="grid-container">
+        <label for="numOfCharger">Charger:</label>
+        <input type="number" id="numOfCharger" name="numOfCharger"><br><br>
+        <label for="chosenInverter">chosen inverter:</label>
+        <input type="number" id="chosenInverter" name="chosenInverter"><br><br>
+        <label for="chosenPanel">chosen panel:</label>
+        <input type="number" id="chosenPanel" name="chosenPanel"><br><br>
+    </div>
+    <hr>
+    <h3>panels priority </h3>
+    <label for="pricePriority">price</label>
+    <input type="number" id="pricePriority" name="pricePriority"><br><br>
+    <label for="numPriority">num</label>
+    <input type="number" id="numPriority" name="numPriority"><br><br>
+    <label for="areaPriority">area</label>
+    <input type="number" id="areaPriority" name="areaPriority"><br><br>
+    <hr>
     
     <button onclick="sizeIt()">get Arrangements</button>
     <!-- <p id="result"></p> -->
@@ -51,6 +77,7 @@
     <script>
         loadFromLocalStorage()
     </script>
-    
+
 </body>
+
 </html>

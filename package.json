@@ -1,0 +1,26 @@
+{
+  "name": "test-pv",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AbdElRahman501/test-pv.git"
+  },
+  "author": "bedo",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AbdElRahman501/test-pv/issues"
+  },
+  "homepage": "https://github.com/AbdElRahman501/test-pv#readme",
+  "dependencies": {
+    "axios": "^1.4.0",
+    "cheerio": "^1.0.0-rc.12",
+    "express": "^4.18.2",
+    "express-async-handler": "^1.2.0"
+  }
+}
